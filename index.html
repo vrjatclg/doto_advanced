@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personal Productivity Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#12020b; --bg2:#300915; --bg3:#6c0a1d; --card:#1b1218; --muted:#a9a6ad; --fg:#f7f6fb; --accent:#ff3158; --accent-2:#ff6a8a; --ring: rgba(255,60,96,.35);
+      --shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; color:var(--fg); font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji','Segoe UI Emoji', 'Segoe UI Symbol';
+      background: radial-gradient(1200px 600px at 80% -10%, rgba(255,49,88,.35), transparent 60%),
+                  radial-gradient(900px 500px at 0% 100%, rgba(254,187,200,.18), transparent 60%),
+                  linear-gradient(160deg, var(--bg1), var(--bg2) 40%, var(--bg3));
+      min-height:100vh;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:20px 24px 60px}
+    .topnav{display:flex;gap:26px;justify-content:center;align-items:center; padding:12px 0; opacity:.95}
+    .topnav a{color:#e9e8ee; text-decoration:none; font-weight:600; letter-spacing:.2px; font-size:13px; text-transform:uppercase; opacity:.8}
+    .topnav a.active{color:#fff; position:relative}
+    .topnav a.active::after{content:""; position:absolute; left:0; right:0; bottom:-10px; height:2px; background:linear-gradient(90deg,var(--accent),var(--accent-2)); border-radius:2px}
+    .header{display:flex; align-items:center; gap:10px;}
+    .tabs{background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); border-radius:999px; padding:6px; display:inline-flex; gap:6px; box-shadow:var(--shadow)}
+    .tab{border:0; background:transparent; color:#cfcbd5; font-weight:600; padding:10px 16px; border-radius:999px; cursor:pointer}
+    .tab.active{background:rgba(255,255,255,.12); color:#fff}
+    .grid{display:grid; grid-template-columns: 1.05fr .95fr; gap:22px; margin-top:20px}
+    @media (max-width: 880px){.grid{grid-template-columns:1fr}}
+    .card{background:rgba(23,16,22,.72); border:1px solid rgba(255,255,255,.08); border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter: blur(6px)}
+    .card .hd{display:flex; align-items:center; justify-content:space-between; padding:16px 16px 8px 16px}
+    .card .hd h2{margin:0; font-weight:800; letter-spacing:.2px}
+    .muted{color:var(--muted); font-size:12px}
+    .content{padding:0 14px 16px}
+    .task-controls{display:flex; gap:10px; align-items:center; padding:12px 14px 0}
+    .task-controls input{flex:1; background:#120b12; border:1px solid rgba(255,255,255,.08); padding:10px 12px; border-radius:12px; color:var(--fg)}
+    .task-controls button{background:linear-gradient(135deg,var(--accent),var(--accent-2)); border:none; padding:10px 14px; border-radius:12px; color:#fff; font-weight:700; cursor:pointer}
+    ul.tasks{list-style:none; margin:8px 0 0; padding:0 4px 0 8px}
+    .tasks li{display:flex; gap:10px; align-items:flex-start; padding:10px 10px; border-radius:12px}
+    .tasks li:hover{background:rgba(255,255,255,.04)}
+    .tasks input[type="checkbox"]{width:16px;height:16px; margin-top:2px}
+    .task-label{flex:1; line-height:1.4}
+    .del{border:0;background:transparent;color:#ffffffb4;cursor:pointer}
+    .poster{position:relative; overflow:hidden}
+    .poster img{width:100%; height:220px; object-fit:cover; display:block; border-bottom-left-radius:var(--radius); border-bottom-right-radius:var(--radius)}
+    .bars{display:grid; grid-template-columns: repeat(7, 1fr); gap:10px; padding:8px 14px 18px}
+    .bar{display:flex; flex-direction:column; gap:6px; align-items:center}
+    .bar .track{height:92px; width:100%; border-radius:12px; background:#120b12; border:1px solid rgba(255,255,255,.08); position:relative; overflow:hidden}
+    .bar .fill{position:absolute; bottom:0; left:0; right:0; height:0%; background:linear-gradient(180deg,var(--accent-2),var(--accent)); box-shadow:0 6px 18px var(--ring)}
+    .bar span{font-size:11px; color:#d0ccd6; text-align:center}
+    .wordmark{font-family:Poppins, system-ui, sans-serif; font-weight:900; font-size:64px; line-height:.9; letter-spacing:1px; opacity:.14; margin:8px 0 0}
+    @media (max-width: 600px){ .wordmark{font-size:42px} }
+    .row{display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:22px}
+    @media (max-width: 880px){ .row{grid-template-columns:1fr} }
+    .pill{background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.1); padding:6px 10px; border-radius:999px}
+    .right{display:flex; align-items:center; gap:10px}
+    .edit{cursor:pointer; border:0; background:transparent; color:#fff}
+    .username{background:transparent; border:0; color:#fff; font-weight:800; font-size:16px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="topnav">
+      <a href="#">Dashboard</a>
+      <a href="#">Courses</a>
+      <a class="active" href="#">Templates</a>
+      <a href="#">Community</a>
+      <a href="#">Feed</a>
+    </nav>
+    <div class="header" style="justify-content:space-between; margin-top:6px">
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="home">Home</button>
+        <button class="tab" data-tab="history">History</button>
+      </div>
+      <div class="right"><span class="pill muted" id="weekLabel"></span></div>
+    </div>
+    <section class="grid" id="homeTab">
+      <div>
+        <article class="card">
+          <div class="hd">
+            <div><h2 id="dayTitle">Wednesday</h2><div class="muted" id="weekSub">Week 34</div></div>
+            <div class="right"><button class="edit" id="clearDay">🧹</button></div>
+          </div>
+          <div class="task-controls"><input id="newTask" placeholder="Add a task and hit Enter…" /><button id="addBtn">Add</button></div>
+          <div class="content"><ul class="tasks" id="taskList"></ul></div>
+        </article>
+        <article class="card poster" style="margin-top:22px"><img id="posterImg" src="https://images.unsplash.com/photo-1606112219348-204d7d8b94ee?q=80&w=1600&auto=format&fit=crop"/></article>
+        <div class="wordmark">GANGSTA<br/>PHILOSOPHY</div>
+      </div>
+      <aside>
+        <article class="card">
+          <div class="hd">
+            <div><div class="muted">This Week's Progress</div><h2><input id="username" class="username" value="Your Name"/></h2></div>
+            <div class="right"><span class="pill" id="stats">Total: 0 • Done: 0</span></div>
+          </div>
+          <div class="bars" id="bars"></div>
+        </article>
+      </aside>
+    </section>
+    <section id="historyTab" style="display:none; margin-top:18px">
+      <article class="card">
+        <div class="hd"><h2>History (Last 7 Days)</h2></div>
+        <div class="bars" id="historyBars"></div>
+        <div class="content" id="historyContent" style="padding:16px"></div>
+      </article>
+    </section>
+  </div>
+  <script>
+    const $ = (sel)=>document.querySelector(sel);
+    const weekDays = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    function getWeekNumber(d){const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));const dayNum = date.getUTCDay() || 7;date.setUTCDate(date.getUTCDate() + 4 - dayNum);const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));const weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);return weekNo;}
+    function dateKey(d=new Date()){return d.toISOString().slice(0,10);}
+    const storage={get(k,f){try{return JSON.parse(localStorage.getItem(k))??f}catch{return f}},set(k,v){localStorage.setItem(k,JSON.stringify(v))}}
+    function loadTasksFor(dayKey){return storage.get(`tasks:${dayKey}`,[])}
+    function saveTasksFor(dayKey,t){storage.set(`tasks:${dayKey}`,t)}
+    function computeWeekStats(d){const wk=getWeekNumber(d);const bars=[];for(let i=0;i<7;i++){const ref=new Date(d);ref.setDate(ref.getDate()-ref.getDay()+i);const key=dateKey(ref);const list=loadTasksFor(key);const total=list.length;const done=list.filter(x=>x.done).length;bars.push({label:weekDays[i],pct:total?Math.round(done/total*100):0,total,done})}return bars}
+    const today=new Date();const todayKey=dateKey(today);
+    $('#dayTitle').textContent=new Intl.DateTimeFormat(undefined,{weekday:'long'}).format(today);
+    $('#weekSub').textContent=`Week ${getWeekNumber(today)}`;
+    $('#weekLabel').textContent=today.toDateString();
+    const usernameEl=$('#username');usernameEl.value=storage.get('username','Your Name');usernameEl.addEventListener('input',()=>storage.set('username',usernameEl.value));
+    if(storage.get('poster'))$('#posterImg').src=storage.get('poster');
+    document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const isHome=btn.dataset.tab==='home';$('#homeTab').style.display=isHome?'grid':'none';$('#historyTab').style.display=isHome?'none':'block';if(!isHome)renderHistory();}));
+    function renderTasks(){const list=loadTasksFor(todayKey);const ul=$('#taskList');ul.innerHTML='';list.forEach((t,idx)=>{const li=document.createElement('li');li.innerHTML=`<input type="checkbox" ${t.done?'checked':''}><div class="task-label" contenteditable="true">${t.text}</div><button class="del">✕</button>`;const cb=li.querySelector('input');const label=li.querySelector('.task-label');const del=li.querySelector('.del');cb.addEventListener('change',()=>{list[idx].done=cb.checked;saveTasksFor(todayKey,list);updateStats()});label.addEventListener('input',()=>{list[idx].text=label.textContent.trim();saveTasksFor(todayKey,list)});del.addEventListener('click',()=>{list.splice(idx,1);saveTasksFor(todayKey,list);renderTasks();updateStats()});ul.appendChild(li)});updateStats()}
+    function addTask(text){const trimmed=text.trim();if(!trimmed)return;const list=loadTasksFor(todayKey);list.push({text:trimmed,done:false});saveTasksFor(todayKey,list);$('#newTask').value='';renderTasks()}
+    $('#addBtn').addEventListener('click',()=>addTask($('#newTask').value));$('#newTask').addEventListener('keydown',e=>{if(e.key==='Enter')addTask(e.target.value)});
+    $('#clearDay').addEventListener('click',()=>{if(confirm('Clear today?')){saveTasksFor(todayKey,[]);renderTasks()}});
+    function updateStats(){const list=loadTasksFor(todayKey);$('#stats').textContent=`Total: ${list.length} • Done: ${list.filter(t=>t.done).length}`;renderBars()}
+    function renderBars(){const data=computeWeekStats(today);const barsWrap=$('#bars');barsWrap.innerHTML='';data.forEach(d=>{const el=document.createElement('div');el.className='bar';el.innerHTML=`<div class="track"><div class="fill" style="height:${d.pct}%"></div></div><span>${d.label}<br><b>${d.pct}%</b></span>`;barsWrap.appendChild(el)})}
+    function renderHistory(){const bars=computeWeekStats(today);const barsWrap=$('#historyBars');barsWrap.innerHTML='';bars.forEach(d=>{const el=document.createElement('div');el.className='bar';el.innerHTML=`<div class="track"><div class="fill" style="height:${d.pct}%"></div></div><span>${d.label}<br><b>${d.pct}%</b></span>`;barsWrap.appendChild(el)});const host=$('#historyContent');host.innerHTML='';for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);const key=dateKey(d);const items=loadTasksFor(key);const sec=document.createElement('section');sec.style.marginBottom='14px';sec.innerHTML=`<div class="muted">${d.toDateString()} • Week ${getWeekNumber(d)} — ${items.filter(t=>t.done).length}/${items.length} done</div>`;const ul=document.createElement('ul');ul.className='tasks';items.forEach(t=>{const li=document.createElement('li');li.innerHTML=`<input type="checkbox" ${t.done?'checked':''} disabled><div class="task-label">${t.text}</div>`;ul.appendChild(li)});if(!items.length){const p=document.createElement('div');p.className='muted';p.style.padding='8px 12px';p.textContent='No tasks saved.';sec.appendChild(p)}sec.appendChild(ul);host.appendChild(sec)}}
+    renderTasks();
+  </script>
+</body>
+</html>
